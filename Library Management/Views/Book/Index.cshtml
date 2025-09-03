@@ -30,7 +30,7 @@
                     </a>
                     <a asp-action="Details" asp-route-id="@book.BookId" class="action-btn" title="Details" />
 
-                    <a asp-action="Delete" asp-route-id="@book.BookId" class="action-btn" title="Delete">
+                    <a href="javascript:void(0);" onclick="openDeleteModal('@book.BookId')" class="action-btn" title="Delete">
                         <i class="bi bi-trash"></i>
                     </a>
                 </div>
@@ -91,6 +91,24 @@
                     console.error(error);
                 });
         }
+                function openDeleteModal(bookId) {
+            fetch(`/Book/Delete?id=${encodeURIComponent(bookId)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error loading delete form.');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    document.querySelector('#exampleModal .modal-content').innerHTML = html;
+                    let modal = new bootstrap.Modal(document.getElementById('exampleModal'));
+                    modal.show();
+                })
+                .catch(error => {
+                    alert(error.message);
+                    console.error(error);
+                });
+        }
 
         function openAddModal() {
             fetch(`/Book/AddModal`)
@@ -113,9 +131,9 @@
                 });
         }
 
-        document.addEventListener("submit", function (e) {
+                document.addEventListener("submit", function (e) {
             const form = e.target;
-            if (form.matches("#editBookForm") || form.matches("#AddBookForm")) {
+            if (form.matches("#editBookForm") || form.matches("#AddBookForm") || form.matches("#deleteBookForm")) {
                 e.preventDefault();
                 const formData = new FormData(form);
                 fetch(form.action, {

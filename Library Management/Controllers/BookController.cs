@@ -57,24 +57,24 @@ namespace Library_Management.Controllers
             return Ok();
         }
 
-        public IActionResult DeleteModal(Guid id)
+        [HttpGet]
+        public IActionResult Delete(Guid? id)
         {
+            if (id == null)
+            {
+                return BadRequest("Book ID is required.");
+            }
 
-            return PartialView("_DeletePartial");
-        }
+            // This line will return null if no book is found,
+            // which is why the next check is crucial.
+            var book = BookService.Instance.GetBookById(id.Value);
 
-        [HttpDelete]
-        public IActionResult Delete(Guid id)
-        {
-            // Assuming BookService has a method to delete the book
-            BookService.Instance.DeleteBook(id);
-            return Ok();
-        }
+            if (book == null)
+            {
+                return NotFound("Book not found.");
+            }
 
-        public IActionResult Details(Guid id)
-        {
-            var book = BookService.Instance.GetBooks().First(b => b.BookId == id);
-            return View(book);
+            return PartialView("_DeleteBookPartial", book);
         }
 
 
